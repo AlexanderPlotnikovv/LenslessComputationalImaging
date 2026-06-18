@@ -56,24 +56,8 @@ class Trainer(BaseTrainer):
         return batch
 
     def _log_batch(self, batch_idx, batch, mode="train"):
-        """
-        Log data from batch. Calls self.writer.add_* to log data
-        to the experiment tracker.
+        self.writer.add_image("lensless", batch["lensless"][0])
+        self.writer.add_image("reconstruction", batch["reconstruction"][0])
 
-        Args:
-            batch_idx (int): index of the current batch.
-            batch (dict): dict-based batch after going through
-                the 'process_batch' function.
-            mode (str): train or inference. Defines which logging
-                rules to apply.
-        """
-        # method to log data from you batch
-        # such as audio, text or images, for example
-
-        # logging scheme might be different for different partitions
-        if mode == "train":  # the method is called only every self.log_step steps
-            # Log Stuff
-            pass
-        else:
-            # Log Stuff
-            pass
+        if "lensed" in batch:
+            self.writer.add_image("lensed", batch["lensed"][0])
