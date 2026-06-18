@@ -1,8 +1,12 @@
 _target_: src.logger.CometMLWriter
-project_name: "pytorch_template"
+project_name: "bhw-lensless-computational-imaging-plotnikov244"
 workspace: null
-run_name: "testing"
+run_id: null
+run_name: "admm_baseline"
 mode: "online"
-loss_names: ["loss"] # which losses to log (useful for multi-loss tasks, s.a. GANs)
-log_checkpoints: False # set to True if you want to log save_dir with checkpoints to W&B
+log_code: false
+log_graph: false
+auto_metric_logging: false
+auto_param_logging: false
+log_checkpoints: True # set to True if you want to log save_dir with checkpoints to W&B
 id_length: 32 # length of the run_id
