@@ -1,1 +1,5 @@
-from src.loss.example import ExampleLoss
+from src.loss.combined import CombinedLoss
+
+__all__ = [
+    "CombinedLoss"
+]
