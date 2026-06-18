@@ -2,6 +2,6 @@ _target_: src.model.admm.ADMMSolver
 sensor_shape: [270, 360]
 pad_shape: [540, 720]
 n_iter: 100
-mu: 1.0e-4
-tau: 2.0e-4
+mu: 1.0e-2
+tau: 2.0e-2
 learnable: false

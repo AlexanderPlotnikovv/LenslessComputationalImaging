@@ -1,9 +1,16 @@
+import torch
+import numpy as np
+import matplotlib.pyplot as plt
 from src.datasets.digicam import DigiCamDataset
-ds = DigiCamDataset("data/train")
-print(ds[0].keys())  # должно быть lensless, lensed, mask
 
+ds = DigiCamDataset("data/test")
 sample = ds[0]
-print(sample['lensless'].shape)  # должно быть (3, H, W)
-print(sample['lensed'].shape)    # должно быть (3, H, W)
-print(sample['psf'].shape)     # должно быть (3, H, W) или (1, H, W)
-print(sample['image_id'])        # строка типа '00000'
+
+plt.figure(figsize=(12, 4))
+plt.subplot(1, 2, 1)
+plt.imshow(sample['lensless'].permute(1, 2, 0))
+plt.title("lensless input")
+plt.subplot(1, 2, 2)
+plt.imshow(sample['lensed'].permute(1, 2, 0))
+plt.title("ground truth")
+plt.show()

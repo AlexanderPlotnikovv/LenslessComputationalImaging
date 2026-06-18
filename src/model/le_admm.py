@@ -4,13 +4,14 @@ from src.model.drunet import DRUNet
 
 
 class LeADMM(nn.Module):
-    def __init__(self, sensor_shape, pad_shape, use_pre=True, use_post=True, n_iter=5, base_ch=64):
+    def __init__(self, sensor_shape, pad_shape, use_pre=True, use_post=True, n_iter=5, base_ch=64, mu=1e-2, tau=2e-2):
         super().__init__()
         self.use_pre = use_pre
         self.use_post = use_post
         if use_pre:
             self.pre = DRUNet(base_ch=base_ch)
-        self.admm = ADMMSolver(sensor_shape=sensor_shape, pad_shape=pad_shape, n_iter=n_iter, learnable=True)
+        self.admm = ADMMSolver(sensor_shape=sensor_shape, pad_shape=pad_shape, n_iter=n_iter, mu=mu, tau=tau,
+                               learnable=True)
         if use_post:
             self.post = DRUNet(base_ch=base_ch)
 
