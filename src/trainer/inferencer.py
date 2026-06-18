@@ -1,5 +1,6 @@
 import torch
 from tqdm.auto import tqdm
+from torchvision import transforms
 
 from src.metrics.tracker import MetricTracker
 from src.trainer.base_trainer import BaseTrainer
@@ -15,15 +16,15 @@ class Inferencer(BaseTrainer):
     """
 
     def __init__(
-        self,
-        model,
-        config,
-        device,
-        dataloaders,
-        save_path,
-        metrics=None,
-        batch_transforms=None,
-        skip_model_load=False,
+            self,
+            model,
+            config,
+            device,
+            dataloaders,
+            save_path,
+            metrics=None,
+            batch_transforms=None,
+            skip_model_load=False,
     ):
         """
         Initialize the Inferencer.
@@ -48,7 +49,7 @@ class Inferencer(BaseTrainer):
                 Inferencer Class.
         """
         assert (
-            skip_model_load or config.inferencer.get("from_pretrained") is not None
+                skip_model_load or config.inferencer.get("from_pretrained") is not None
         ), "Provide checkpoint or set skip_model_load=True"
 
         self.config = config
@@ -117,7 +118,7 @@ class Inferencer(BaseTrainer):
                 and model outputs.
         """
         batch = self.move_batch_to_device(batch)
-        batch = self.transform_batch(batch)  # transform batch on device -- faster
+        batch = self.transform_batch(batch)
 
         outputs = self.model(**batch)
         batch.update(outputs)
@@ -126,29 +127,14 @@ class Inferencer(BaseTrainer):
             for met in self.metrics["inference"]:
                 metrics.update(met.name, met(**batch))
 
-        # Some saving logic. This is an example
-        # Use if you need to save predictions on disk
+        if self.save_path is not None:
+            save_dir = self.save_path / part
+            save_dir.mkdir(exist_ok=True, parents=True)
 
-        batch_size = batch["logits"].shape[0]
-        current_id = batch_idx * batch_size
-
-        for i in range(batch_size):
-            # clone because of
-            # https://github.com/pytorch/pytorch/issues/1995
-            logits = batch["logits"][i].clone()
-            label = batch["labels"][i].clone()
-            pred_label = logits.argmax(dim=-1)
-
-            output_id = current_id + i
-
-            output = {
-                "pred_label": pred_label,
-                "label": label,
-            }
-
-            if self.save_path is not None:
-                # you can use safetensors or other lib here
-                torch.save(output, self.save_path / part / f"output_{output_id}.pth")
+            for i, image_id in enumerate(batch["image_id"]):
+                reconstruction = batch["reconstruction"][i].cpu()
+                reconstruction = transforms.ToPILImage()(reconstruction.clamp(0, 1))
+                reconstruction.save(save_dir / f"{image_id}.png")
 
         return batch
 
@@ -174,9 +160,9 @@ class Inferencer(BaseTrainer):
 
         with torch.no_grad():
             for batch_idx, batch in tqdm(
-                enumerate(dataloader),
-                desc=part,
-                total=len(dataloader),
+                    enumerate(dataloader),
+                    desc=part,
+                    total=len(dataloader),
             ):
                 batch = self.process_batch(
                     batch_idx=batch_idx,

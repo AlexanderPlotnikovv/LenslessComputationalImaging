@@ -1,6 +1,10 @@
 import torch
 import lpips
-from torchmetrics.functional import peak_signal_noise_ratio, structural_similarity_index_measure
+
+try:
+    from torchmetrics.image import peak_signal_noise_ratio, structural_similarity_index_measure
+except ImportError:
+    from torchmetrics.functional import peak_signal_noise_ratio, structural_similarity_index_measure
 
 from src.metrics.base_metric import BaseMetric
 
