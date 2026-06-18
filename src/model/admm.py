@@ -32,8 +32,8 @@ class ADMMSolver(nn.Module):
     def __init__(self, sensor_shape, pad_shape, n_iter=100, mu=1e-4, tau=2e-4, learnable=False):
         super().__init__()
         self.n_iter = n_iter
-        self.sensor_shape = sensor_shape
-        self.pad_shape = pad_shape
+        self.sensor_shape = tuple(sensor_shape)
+        self.pad_shape = tuple(pad_shape)
 
         if learnable:
             self.log_mu = nn.Parameter(torch.full((n_iter,), torch.log(torch.tensor(mu))))

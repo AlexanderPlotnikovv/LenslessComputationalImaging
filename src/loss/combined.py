@@ -7,12 +7,13 @@ class CombinedLoss(nn.Module):
     def __init__(self, lpips_weight=1.0):
         super().__init__()
         self.mse = nn.MSELoss()
-        self.lpips = lpips.LPIPS(net="vgg")
+        self.lpips_fn = lpips.LPIPS(net="vgg")
         self.lpips_weight = lpips_weight
 
     def forward(self, reconstruction, lensed, **batch):
+        self.lpips_fn = self.lpips_fn.to(reconstruction.device)
         mse_loss = self.mse(reconstruction, lensed)
-        lpips_loss = self.lpips(
+        lpips_loss = self.lpips_fn(
             reconstruction * 2 - 1,
             lensed * 2 - 1,
         ).mean()

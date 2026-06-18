@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class ConvBlock(nn.Module):
@@ -49,18 +50,17 @@ class DRUNet(nn.Module):
     def forward(self, x):
         e1 = self.enc1(x)
         e2 = self.enc2(self.pool(e1))
-
         e3 = self.enc3(self.pool(e2))
-
         e4 = self.enc4(self.pool(e3))
-
         b = self.bottleneck(self.pool(e4))
 
-        d4 = self.dec4(torch.cat([self.up4(b), e4], dim=1))
+        def match_size(a, b):
+            if a.shape != b.shape:
+                a = F.interpolate(a, size=b.shape[2:], mode='bilinear', align_corners=False)
+            return a
 
-        d3 = self.dec3(torch.cat([self.up3(d4), e3], dim=1))
-
-        d2 = self.dec2(torch.cat([self.up2(d3), e2], dim=1))
-
-        d1 = self.dec1(torch.cat([self.up1(d2), e1], dim=1))
+        d4 = self.dec4(torch.cat([match_size(self.up4(b), e4), e4], dim=1))
+        d3 = self.dec3(torch.cat([match_size(self.up3(d4), e3), e3], dim=1))
+        d2 = self.dec2(torch.cat([match_size(self.up2(d3), e2), e2], dim=1))
+        d1 = self.dec1(torch.cat([match_size(self.up1(d2), e1), e1], dim=1))
         return (x + self.head(d1)).clamp(0, 1)

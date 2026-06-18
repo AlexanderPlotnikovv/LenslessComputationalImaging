@@ -1,0 +1,18 @@
+device: "auto"
+
+train:
+  - _target_: src.metrics.lensless.PSNRMetric
+    name: "psnr"
+  - _target_: src.metrics.lensless.MSEMetric
+    name: "mse"
+
+inference:
+  - _target_: src.metrics.lensless.PSNRMetric
+    name: "psnr"
+  - _target_: src.metrics.lensless.SSIMMetric
+    name: "ssim"
+  - _target_: src.metrics.lensless.MSEMetric
+    name: "mse"
+  - _target_: src.metrics.lensless.LPIPSMetric
+    name: "lpips"
+    device: ${metrics.device}

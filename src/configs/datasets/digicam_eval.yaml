@@ -1,0 +1,5 @@
+test:
+  _target_: src.datasets.digicam.DigiCamDataset
+  data_dir: data/test
+  image_size: [ 270, 360 ]
+  instance_transforms: ${transforms.instance_transforms.inference}

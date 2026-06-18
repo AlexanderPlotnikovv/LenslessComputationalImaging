@@ -12,15 +12,15 @@ class CometMLWriter:
     """
 
     def __init__(
-        self,
-        logger,
-        project_config,
-        project_name,
-        workspace=None,
-        run_id=None,
-        run_name=None,
-        mode="online",
-        **kwargs,
+            self,
+            logger,
+            project_config,
+            project_name,
+            workspace=None,
+            run_id=None,
+            run_name=None,
+            mode="online",
+            **kwargs,
     ):
         """
         API key is expected to be provided by the user in the terminal.
@@ -37,52 +37,44 @@ class CometMLWriter:
             mode (str): if online, log data to the remote server. If
                 offline, log locally.
         """
+        self.step = 0
+        self.mode = ""
+        self.timer = datetime.now()
+
         try:
             import comet_ml
 
-            comet_ml.login()
-
-            self.run_id = run_id
-
-            resume = False
-            if project_config["trainer"].get("resume_from") is not None:
-                resume = True
-
-            if resume:
-                if mode == "offline":
-                    exp_class = comet_ml.ExistingOfflineExperiment
-                else:
-                    exp_class = comet_ml.ExistingExperiment
-
-                self.exp = exp_class(experiment_key=self.run_id)
-            else:
-                if mode == "offline":
-                    exp_class = comet_ml.OfflineExperiment
-                else:
-                    exp_class = comet_ml.Experiment
-
-                self.exp = exp_class(
+            if mode == "disabled":
+                self.exp = comet_ml.Experiment(
                     project_name=project_name,
-                    workspace=workspace,
-                    experiment_key=self.run_id,
-                    log_code=kwargs.get("log_code", False),
-                    log_graph=kwargs.get("log_graph", False),
-                    auto_metric_logging=kwargs.get("auto_metric_logging", False),
-                    auto_param_logging=kwargs.get("auto_param_logging", False),
+                    disabled=True,
                 )
-                self.exp.set_name(run_name)
-                self.exp.log_parameters(parameters=project_config)
+            else:
+                comet_ml.login()
+                self.run_id = run_id
+                resume = project_config["trainer"].get("resume_from") is not None
 
-            self.comel_ml = comet_ml
+                if resume:
+                    exp_class = comet_ml.ExistingOfflineExperiment if mode == "offline" else comet_ml.ExistingExperiment
+                    self.exp = exp_class(experiment_key=self.run_id)
+                else:
+                    exp_class = comet_ml.OfflineExperiment if mode == "offline" else comet_ml.Experiment
+                    self.exp = exp_class(
+                        project_name=project_name,
+                        workspace=workspace,
+                        experiment_key=self.run_id,
+                        log_code=kwargs.get("log_code", False),
+                        log_graph=kwargs.get("log_graph", False),
+                        auto_metric_logging=kwargs.get("auto_metric_logging", False),
+                        auto_param_logging=kwargs.get("auto_param_logging", False),
+                    )
+                    self.exp.set_name(run_name)
+                    self.exp.log_parameters(parameters=project_config)
+
+            self.comet_ml = comet_ml
 
         except ImportError:
             logger.warning("For use comet_ml install it via \n\t pip install comet_ml")
-
-        self.step = 0
-        # the mode is usually equal to the current partition name
-        # used to separate Partition1 and Partition2 metrics
-        self.mode = ""
-        self.timer = datetime.now()
 
     def set_step(self, step, mode="train"):
         """
@@ -133,9 +125,9 @@ class CometMLWriter:
         """
         # For comet, save dir is not required
         # It is kept for consistency with WandB
-        self.exp.log_model(
-            name="checkpoints", file_or_folder=checkpoint_path, overwrite=True
-        )
+        if not hasattr(self, "exp"):
+            return
+        self.exp.log_model(name="checkpoints", file_or_folder=checkpoint_path, overwrite=True)
 
     def add_scalar(self, scalar_name, scalar):
         """
@@ -145,12 +137,9 @@ class CometMLWriter:
             scalar_name (str): name of the scalar to use in the tracker.
             scalar (float): value of the scalar.
         """
-        self.exp.log_metrics(
-            {
-                self._object_name(scalar_name): scalar,
-            },
-            step=self.step,
-        )
+        if not hasattr(self, "exp"):
+            return
+        self.exp.log_metrics({self._object_name(scalar_name): scalar}, step=self.step)
 
     def add_scalars(self, scalars):
         """
@@ -176,9 +165,9 @@ class CometMLWriter:
             image (Path | Tensor | ndarray | list[tuple] | Image): image
                 in the CometML-friendly format.
         """
-        self.exp.log_image(
-            image_data=image, name=self._object_name(image_name), step=self.step
-        )
+        if not hasattr(self, "exp"):
+            return
+        self.exp.log_image(image_data=image, name=self._object_name(image_name), step=self.step)
 
     def add_audio(self, audio_name, audio, sample_rate=None):
         """

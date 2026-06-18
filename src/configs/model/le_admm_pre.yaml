@@ -1,0 +1,7 @@
+_target_: src.model.le_admm.LeADMM
+sensor_shape: [270, 360]
+pad_shape: [540, 720]
+use_pre: true
+use_post: false
+n_iter: 5
+base_ch: 64
