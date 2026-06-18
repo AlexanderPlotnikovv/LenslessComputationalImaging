@@ -40,6 +40,17 @@ def download_masks(masks_dir: Path):
         shutil.copy(path, dst)
 
 
+def precompute_psfs(split_dir, output_shape=(270, 360)):
+    from src.utils.psf_utils import simulate_psf
+    psf_dir = split_dir / "psfs"
+    psf_dir.mkdir(exist_ok=True)
+    for mask_path in tqdm(sorted((split_dir / "masks").glob("*.npy")), desc=f"PSFs {split_dir.name}"):
+        psf_path = psf_dir / mask_path.name
+        if psf_path.exists():
+            continue
+        np.save(psf_path, simulate_psf(np.load(mask_path), output_shape).numpy())
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_dir", default="./data", type=str)
@@ -58,6 +69,9 @@ def main():
 
     save_split(dataset["train"], data_dir / "train", masks_dir)
     save_split(dataset["test"], data_dir / "test", masks_dir)
+
+    precompute_psfs(data_dir / "train")
+    precompute_psfs(data_dir / "test")
 
     print(f"\nDone! Dataset saved to {data_dir}")
     print(f"  train: {len(dataset['train'])} samples")
