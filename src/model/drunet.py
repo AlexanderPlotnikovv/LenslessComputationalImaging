@@ -63,4 +63,4 @@ class DRUNet(nn.Module):
         d3 = self.dec3(torch.cat([match_size(self.up3(d4), e3), e3], dim=1))
         d2 = self.dec2(torch.cat([match_size(self.up2(d3), e2), e2], dim=1))
         d1 = self.dec1(torch.cat([match_size(self.up1(d2), e1), e1], dim=1))
-        return (x + self.head(d1)).clamp(0, 1)
+        return x + self.head(d1)

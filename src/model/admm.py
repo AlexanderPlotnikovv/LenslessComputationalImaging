@@ -80,4 +80,8 @@ class ADMMSolver(nn.Module):
             z = soft_threshold(finite_diff(x) + u, tau_k / mu_k)
             u = u + finite_diff(x) - z
 
-        return {"reconstruction": self._crop(x).clamp(0, 1)}
+        x = self._crop(x)
+        x_min = x.amin(dim=(-2, -1), keepdim=True)
+        x_max = x.amax(dim=(-2, -1), keepdim=True)
+        x = (x - x_min) / (x_max - x_min + 1e-8)
+        return {"reconstruction": x}

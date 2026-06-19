@@ -20,4 +20,4 @@ class LeADMM(nn.Module):
         out = self.admm(x, psf)
         recon = out["reconstruction"]
         recon = self.post(recon) if self.use_post else recon
-        return {"reconstruction": recon}
+        return {"reconstruction": recon.clamp(0, 1)}
