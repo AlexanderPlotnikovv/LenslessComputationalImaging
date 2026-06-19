@@ -1,0 +1,4 @@
+test:
+  _target_: src.datasets.custom_dir_dataset.CustomDirDataset
+  data_dir: ${inferencer.data_dir}
+  image_size: [ 270, 360 ]
