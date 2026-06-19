@@ -16,20 +16,20 @@ class BaseTrainer:
     """
 
     def __init__(
-        self,
-        model,
-        criterion,
-        metrics,
-        optimizer,
-        lr_scheduler,
-        config,
-        device,
-        dataloaders,
-        logger,
-        writer,
-        epoch_len=None,
-        skip_oom=True,
-        batch_transforms=None,
+            self,
+            model,
+            criterion,
+            metrics,
+            optimizer,
+            lr_scheduler,
+            config,
+            device,
+            dataloaders,
+            logger,
+            writer,
+            epoch_len=None,
+            skip_oom=True,
+            batch_transforms=None,
     ):
         """
         Args:
@@ -132,7 +132,7 @@ class BaseTrainer:
         # define checkpoint dir and init everything if required
 
         self.checkpoint_dir = (
-            ROOT_PATH / config.trainer.save_dir / config.writer.run_name
+                ROOT_PATH / config.trainer.save_dir / config.writer.run_name
         )
 
         if config.trainer.get("resume_from") is not None:
@@ -203,7 +203,7 @@ class BaseTrainer:
         self.writer.set_step((epoch - 1) * self.epoch_len)
         self.writer.add_scalar("epoch", epoch)
         for batch_idx, batch in enumerate(
-            tqdm(self.train_dataloader, desc="train", total=self.epoch_len)
+                tqdm(self.train_dataloader, desc="train", total=self.epoch_len)
         ):
             try:
                 batch = self.process_batch(
@@ -265,9 +265,9 @@ class BaseTrainer:
         self.evaluation_metrics.reset()
         with torch.no_grad():
             for batch_idx, batch in tqdm(
-                enumerate(dataloader),
-                desc=part,
-                total=len(dataloader),
+                    enumerate(dataloader),
+                    desc=part,
+                    total=len(dataloader),
             ):
                 batch = self.process_batch(
                     batch,
@@ -499,7 +499,7 @@ class BaseTrainer:
         """
         resume_path = str(resume_path)
         self.logger.info(f"Loading checkpoint: {resume_path} ...")
-        checkpoint = torch.load(resume_path, self.device)
+        checkpoint = torch.load(resume_path, self.device, weights_only=False)
         self.start_epoch = checkpoint["epoch"] + 1
         self.mnt_best = checkpoint["monitor_best"]
 
@@ -513,8 +513,8 @@ class BaseTrainer:
 
         # load optimizer state from checkpoint only when optimizer type is not changed.
         if (
-            checkpoint["config"]["optimizer"] != self.config["optimizer"]
-            or checkpoint["config"]["lr_scheduler"] != self.config["lr_scheduler"]
+                checkpoint["config"]["optimizer"] != self.config["optimizer"]
+                or checkpoint["config"]["lr_scheduler"] != self.config["lr_scheduler"]
         ):
             self.logger.warning(
                 "Warning: Optimizer or lr_scheduler given in the config file is different "
@@ -545,7 +545,7 @@ class BaseTrainer:
             self.logger.info(f"Loading model weights from: {pretrained_path} ...")
         else:
             print(f"Loading model weights from: {pretrained_path} ...")
-        checkpoint = torch.load(pretrained_path, self.device)
+        checkpoint = torch.load(pretrained_path, self.device, weights_only=False)
 
         if checkpoint.get("state_dict") is not None:
             self.model.load_state_dict(checkpoint["state_dict"])
