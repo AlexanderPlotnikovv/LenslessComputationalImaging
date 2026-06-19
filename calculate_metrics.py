@@ -42,8 +42,8 @@ def main():
         if not gt_path.exists():
             continue
 
-        gt = load_image(gt_path).unsqueeze(0)
         pred = load_image(pred_path).unsqueeze(0)
+        gt = load_image(gt_path, size=pred.shape[-2:]).unsqueeze(0)
 
         psnr_vals.append(peak_signal_noise_ratio(pred, gt, data_range=1.0).item())
         ssim_vals.append(structural_similarity_index_measure(pred, gt, data_range=1.0).item())

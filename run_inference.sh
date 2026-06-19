@@ -13,7 +13,8 @@ for model in le_admm_pre_post le_admm_pre le_admm_post unrolled_admm20; do
     inferencer.device=$DEVICE \
     dataloader.batch_size=8 \
     dataloader.num_workers=0 \
-    ++datasets.test.data_dir=$DATA
+    ++datasets.test.data_dir=$DATA \
+    ++datasets.test.limit=300
 
   echo "=== Metrics: $model ==="
   python3 calculate_metrics.py \
@@ -30,7 +31,8 @@ python3 inference.py \
   dataloader.batch_size=8 \
   dataloader.num_workers=0 \
   ++datasets.test.data_dir=$DATA \
-  ++inferencer.skip_model_load=true
+  ++inferencer.skip_model_load=true \
+  ++datasets.test.limit=300
 
 echo "=== Metrics: admm100 ==="
 python3 calculate_metrics.py \
