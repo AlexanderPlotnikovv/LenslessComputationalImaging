@@ -14,8 +14,11 @@ from tqdm import tqdm
 import lpips
 
 
-def load_image(path):
-    return transforms.ToTensor()(Image.open(path).convert("RGB"))
+def load_image(path, size=None):
+    img = Image.open(path).convert("RGB")
+    if size is not None:
+        img = img.resize((size[1], size[0]))
+    return transforms.ToTensor()(img)
 
 
 def main():
