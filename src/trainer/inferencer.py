@@ -123,7 +123,7 @@ class Inferencer(BaseTrainer):
         outputs = self.model(**batch)
         batch.update(outputs)
 
-        if metrics is not None:
+        if metrics is not None and "lensed" in batch:
             for met in self.metrics["inference"]:
                 metrics.update(met.name, met(**batch))
 

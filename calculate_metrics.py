@@ -4,7 +4,11 @@ from pathlib import Path
 import numpy as np
 import torch
 from PIL import Image
-from torchmetrics.image import peak_signal_noise_ratio, structural_similarity_index_measure
+
+try:
+    from torchmetrics.image import peak_signal_noise_ratio, structural_similarity_index_measure
+except ImportError:
+    from torchmetrics.functional import peak_signal_noise_ratio, structural_similarity_index_measure
 from torchvision import transforms
 from tqdm import tqdm
 import lpips
