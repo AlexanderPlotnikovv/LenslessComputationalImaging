@@ -103,6 +103,7 @@ ENV/
 # input data, saved log, checkpoints, hydra outputs
 data/
 input/
+models/
 saved/
 wandb/
 .cometml-runs/
@@ -112,3 +113,4 @@ outputs/
 .vscode/
 .idea/
 __MACOSX/
+/models/
